@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  async redirects() {
+    return [{ source: "/contact", destination: "/support", permanent: true }];
+  },
   async headers() {
     return [
       {
