@@ -7,6 +7,9 @@ end; admins verify workers, reassign jobs and manage the catalogue.
 
 Operated by **Lakshya Yadav Enterprises** · Support **+91 83071 21221** · 7 AM – 9 PM, all days.
 
+- **Live demo:** https://mistri-now-rewari.vercel.app
+- **Source:** https://github.com/bills740ssrw-creator/mistri-now-rewari
+
 ---
 
 ## Quick start
@@ -20,7 +23,9 @@ pnpm dev                     # http://localhost:3100
 ```
 
 No database is needed for the demo. The app runs on a file-backed store at
-`.data/demo.json` that is created and seeded on first request.
+`.data/demo.json` that is created and seeded on first request. On Vercel the demo
+store lives in the function's temporary filesystem, so bookings and sign-ups can
+reset when a new serverless instance starts.
 
 ### Demo sign-in
 
