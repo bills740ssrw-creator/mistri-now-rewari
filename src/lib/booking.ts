@@ -76,7 +76,6 @@ export function slotsForDate(dateKey: string): (typeof TIME_SLOTS)[number][] {
   if (dateKey > addDaysKey(today, MAX_ADVANCE_DAYS)) return [];
   if (dateKey !== today) return TIME_SLOTS;
 
-  const nowHour = istHour();
   const now = new Date();
   const minutes = Number(
     new Intl.DateTimeFormat("en-GB", {
@@ -84,9 +83,8 @@ export function slotsForDate(dateKey: string): (typeof TIME_SLOTS)[number][] {
       timeZone: "Asia/Kolkata",
     }).format(now),
   );
-  return TIME_SLOTS.filter(
-    (slot) => slot.hour > nowHour || (slot.hour === nowHour && minutes < 45),
-  );
+  const nowMinutes = istHour(now) * 60 + minutes;
+  return TIME_SLOTS.filter((slot) => slot.hour * 60 >= nowMinutes - 15);
 }
 
 export function addDaysKey(dateKey: string, days: number): string {
