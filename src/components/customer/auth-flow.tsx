@@ -40,18 +40,21 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 
-type Step = "phone" | "otp" | "role" | "customer" | "worker" | "admin";
+type Step = "phone" | "otp" | "role" | "customer" | "worker";
 
 export function AuthFlow({ next, demo }: { next?: string; demo: boolean }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [demoOtp, setDemoOtp] = useState<string | null>(demo ? "123456" : null);
   const otpRef = useRef<HTMLInputElement>(null);
+  const adminMode = phone.includes("@");
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -85,6 +88,38 @@ export function AuthFlow({ next, demo }: { next?: string; demo: boolean }) {
       setStep("otp");
       setCooldown(30);
       toast.success(resend ? "A fresh OTP is on its way." : result.message);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function submitIdentifier() {
+    if (adminMode) {
+      await adminSignIn();
+      return;
+    }
+    await sendOtp(false);
+  }
+
+  async function adminSignIn() {
+    if (!phone.trim()) {
+      setError("Enter the admin email.");
+      return;
+    }
+    if (!adminPassword) {
+      setError("Enter the admin password.");
+      return;
+    }
+    setPending(true);
+    setError(null);
+    try {
+      const result = await adminLoginAction({ email: phone.trim(), password: adminPassword });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      toast.success("Signed in as admin.");
+      go(result.redirectTo);
     } finally {
       setPending(false);
     }
@@ -151,43 +186,19 @@ export function AuthFlow({ next, demo }: { next?: string; demo: boolean }) {
 
   return (
     <div className="w-full">
-      <div className="flex rounded-full border border-ink-200 bg-white p-1">
-        <button
-          type="button"
-          onClick={() => {
-            setError(null);
-            setStep("phone");
-          }}
-          className={cn(
-            "flex-1 rounded-full px-3 py-2 text-[12.5px] font-semibold transition",
-            step !== "admin" ? "bg-ink-950 text-cream-50" : "text-ink-500 hover:text-ink-900",
-          )}
-        >
-          Customer / worker
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setError(null);
-            setStep("admin");
-          }}
-          className={cn(
-            "flex-1 rounded-full px-3 py-2 text-[12.5px] font-semibold transition",
-            step === "admin" ? "bg-ink-950 text-cream-50" : "text-ink-500 hover:text-ink-900",
-          )}
-        >
-          Admin login
-        </button>
-      </div>
-
-      <div key={step} className="mt-6 animate-[fade-up_.3s_cubic-bezier(.16,1,.3,1)]">
+      <div key={step} className="animate-[fade-up_.3s_cubic-bezier(.16,1,.3,1)]">
         {step === "phone" ? (
           <PhoneStep
             phone={phone}
             setPhone={setPhone}
+            adminMode={adminMode}
+            adminPassword={adminPassword}
+            setAdminPassword={setAdminPassword}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
             pending={pending}
             error={error}
-            onSubmit={() => sendOtp(false)}
+            onSubmit={() => submitIdentifier()}
           />
         ) : null}
 
@@ -253,26 +264,20 @@ export function AuthFlow({ next, demo }: { next?: string; demo: boolean }) {
             }}
           />
         ) : null}
-
-        {step === "admin" ? (
-          <AdminStep
-            pending={pending}
-            error={error}
-            setPending={setPending}
-            setError={setError}
-            onDone={go}
-            demo={demo}
-          />
-        ) : null}
       </div>
 
-      {demo && step !== "admin" ? (
+      {demo ? (
         <div className="mt-7 rounded-2xl border border-dashed border-saffron-300 bg-saffron-50/60 p-4">
           <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-saffron-800">
             <Sparkles className="h-3 w-3" /> Demo shortcuts
           </p>
           <p className="mt-1 text-[11.5px] leading-relaxed text-saffron-900/70">
             Jump straight into a seeded account. OTP is always 123456 in this build.
+          </p>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-saffron-900/70">
+            Admin sign-in:{" "}
+            <span className="font-mono font-semibold">{DEMO_ADMIN_EMAIL}</span> ·{" "}
+            <span className="font-mono font-semibold">{DEMO_ADMIN_PASSWORD}</span>
           </p>
           <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
             {DEMO_ACCOUNTS.map((account) => (
@@ -336,12 +341,22 @@ function ErrorNote({ error }: { error: string | null }) {
 function PhoneStep({
   phone,
   setPhone,
+  adminMode,
+  adminPassword,
+  setAdminPassword,
+  showPassword,
+  setShowPassword,
   pending,
   error,
   onSubmit,
 }: {
   phone: string;
   setPhone: (value: string) => void;
+  adminMode: boolean;
+  adminPassword: string;
+  setAdminPassword: (value: string) => void;
+  showPassword: boolean;
+  setShowPassword: (value: boolean) => void;
   pending: boolean;
   error: string | null;
   onSubmit: () => void;
@@ -349,8 +364,12 @@ function PhoneStep({
   return (
     <>
       <StepHeading
-        title="Your home, handled."
-        copy="Sign in with your mobile number. New here? We'll set up your profile in under a minute."
+        title={adminMode ? "Admin control room" : "Your home, handled."}
+        copy={
+          adminMode
+            ? "Sign in with your admin email and password — you'll land straight on the operations dashboard."
+            : "Sign in with your mobile number. New here? We'll set up your profile in under a minute. Admins can use their work email instead."
+        }
       />
       <form
         onSubmit={(event) => {
@@ -359,29 +378,83 @@ function PhoneStep({
         }}
         className="space-y-4"
       >
-        <Field label="Mobile number" htmlFor="auth-phone">
+        <Field
+          label={adminMode ? "Admin email" : "Mobile number or admin email"}
+          htmlFor="auth-phone"
+        >
           <div className="flex items-center gap-2">
             <span className="flex h-12 shrink-0 items-center gap-1.5 rounded-2xl border border-ink-200 bg-cream-100/60 px-3 text-[14px] font-semibold text-ink-700">
-              <Phone className="h-4 w-4 text-ink-400" /> +91
+              {adminMode ? (
+                <Mail className="h-4 w-4 text-ink-400" />
+              ) : (
+                <>
+                  <Phone className="h-4 w-4 text-ink-400" /> +91
+                </>
+              )}
             </span>
             <Input
               id="auth-phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel-national"
-              placeholder="98765 43210"
+              type="text"
+              inputMode={adminMode ? "email" : "numeric"}
+              autoComplete={adminMode ? "username" : "tel-national"}
+              placeholder={adminMode ? "admin@mistrinow.in" : "98765 43210"}
               value={phone}
-              onChange={(event) => setPhone(event.target.value.replace(/\D/g, "").slice(0, 10))}
+              onChange={(event) => {
+                const raw = event.target.value;
+                if (/[a-zA-Z@._-]/.test(raw)) {
+                  setPhone(raw.slice(0, 80));
+                } else {
+                  setPhone(raw.replace(/\D/g, "").slice(0, 10));
+                }
+              }}
               className="tracking-wide"
               required
             />
           </div>
         </Field>
+
+        {adminMode ? (
+          <Field label="Password" htmlFor="auth-password">
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+              <Input
+                id="auth-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                value={adminPassword}
+                onChange={(event) => setAdminPassword(event.target.value)}
+                className="pl-10 pr-11"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-400 hover:text-ink-700"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </Field>
+        ) : null}
+
         <ErrorNote error={error} />
-        <Button type="submit" variant="brand" size="lg" className="w-full" disabled={pending}>
+        <Button
+          type="submit"
+          variant={adminMode ? "primary" : "brand"}
+          size="lg"
+          className="w-full"
+          disabled={pending}
+        >
           {pending ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" /> Sending OTP…
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {adminMode ? "Signing in…" : "Sending OTP…"}
+            </>
+          ) : adminMode ? (
+            <>
+              <KeyRound className="h-4 w-4" /> Open admin dashboard
             </>
           ) : (
             <>
@@ -391,21 +464,31 @@ function PhoneStep({
         </Button>
       </form>
 
-      <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-cream-100/70 p-3.5 text-[11.5px] leading-relaxed text-ink-500">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
-        We only use your number for booking updates and OTP sign-in. No marketing spam, ever.
-      </div>
+      {adminMode ? (
+        <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-cream-100/70 p-3.5 text-[11.5px] leading-relaxed text-ink-500">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+          Admin access is restricted to the Mistri Now operations team. Clear the email field to
+          sign in as a customer or worker.
+        </div>
+      ) : (
+        <>
+          <div className="mt-5 flex items-start gap-2.5 rounded-2xl bg-cream-100/70 p-3.5 text-[11.5px] leading-relaxed text-ink-500">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+            We only use your number for booking updates and OTP sign-in. No marketing spam, ever.
+          </div>
 
-      <div className="mt-6 border-t border-ink-100 pt-5">
-        <p className="flex items-center gap-2 text-[12.5px] font-semibold text-ink-900">
-          <Wrench className="h-4 w-4 text-brand-600" /> Are you a mistri?
-        </p>
-        <p className="mt-1 text-[12px] leading-relaxed text-ink-500">
-          Verify your number, add your Aadhaar and start accepting jobs after approval. Choose{" "}
-          <span className="font-semibold text-ink-700">“I&apos;m a professional”</span> on the next
-          step.
-        </p>
-      </div>
+          <div className="mt-6 border-t border-ink-100 pt-5">
+            <p className="flex items-center gap-2 text-[12.5px] font-semibold text-ink-900">
+              <Wrench className="h-4 w-4 text-brand-600" /> Are you a mistri?
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-ink-500">
+              Verify your number, add your Aadhaar and start accepting jobs after approval. Choose{" "}
+              <span className="font-semibold text-ink-700">“I&apos;m a professional”</span> on the
+              next step.
+            </p>
+          </div>
+        </>
+      )}
     </>
   );
 }
@@ -927,114 +1010,5 @@ function DocTile({
         </>
       )}
     </button>
-  );
-}
-
-function AdminStep({
-  pending,
-  error,
-  setPending,
-  setError,
-  onDone,
-  demo,
-}: {
-  pending: boolean;
-  error: string | null;
-  setPending: (value: boolean) => void;
-  setError: (value: string | null) => void;
-  onDone: (path: string) => void;
-  demo: boolean;
-}) {
-  const [email, setEmail] = useState(demo ? DEMO_ADMIN_EMAIL : "");
-  const [password, setPassword] = useState("");
-  const [show, setShow] = useState(false);
-
-  async function submit() {
-    setPending(true);
-    setError(null);
-    try {
-      const result = await adminLoginAction({ email, password });
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      toast.success("Signed in as admin.");
-      onDone(result.redirectTo);
-    } finally {
-      setPending(false);
-    }
-  }
-
-  return (
-    <>
-      <StepHeading
-        title="Admin control room"
-        copy="Restricted access for the Mistri Now operations team."
-      />
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void submit();
-        }}
-        className="space-y-4"
-      >
-        <Field label="Admin email" htmlFor="admin-email">
-          <div className="relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
-            <Input
-              id="admin-email"
-              type="email"
-              autoComplete="username"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="pl-10"
-              placeholder="admin@mistrinow.in"
-              required
-            />
-          </div>
-        </Field>
-        <Field label="Password" htmlFor="admin-password">
-          <div className="relative">
-            <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
-            <Input
-              id="admin-password"
-              type={show ? "text" : "password"}
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="pl-10 pr-11"
-              placeholder="••••••••"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShow((value) => !value)}
-              aria-label={show ? "Hide password" : "Show password"}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-400 hover:text-ink-700"
-            >
-              {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </Field>
-        <ErrorNote error={error} />
-        <Button type="submit" variant="primary" size="lg" className="w-full" disabled={pending}>
-          {pending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" /> Signing in…
-            </>
-          ) : (
-            <>
-              <KeyRound className="h-4 w-4" /> Enter dashboard
-            </>
-          )}
-        </Button>
-      </form>
-      {demo ? (
-        <p className="mt-4 rounded-xl bg-cream-100/80 px-3 py-2.5 text-center text-[11.5px] text-ink-500">
-          Demo credentials pre-filled — password is{" "}
-          <span className="font-mono font-semibold text-ink-800">{DEMO_ADMIN_PASSWORD}</span>
-        </p>
-      ) : null}
-    </>
   );
 }
