@@ -14,7 +14,7 @@ export function PrimaryNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="text-ink-700 hidden items-center gap-4 text-[17px] font-semibold tracking-[-0.01em] whitespace-nowrap lg:flex xl:gap-6 xl:text-[18px]">
+    <nav className="text-ink-700 hidden items-center gap-6 text-[16px] font-semibold tracking-[-0.01em] whitespace-nowrap lg:flex xl:gap-8 xl:text-[18px]">
       {NAV.map((item) => {
         const active = pathname === item.href;
         return (
