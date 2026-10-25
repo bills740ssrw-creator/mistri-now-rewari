@@ -2,7 +2,7 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowUpRight, Clock3, Search, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Clock3, Search, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import type { Role, Service, ServiceCategory } from "@/lib/types";
 import { CATEGORY_META } from "@/lib/constants";
@@ -60,29 +60,16 @@ export function ServiceGrid({
 
   return (
     <section id="services" className="container-page scroll-mt-24 py-16 lg:py-20">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="max-w-2xl">
-          <Badge tone="brand">
-            <Sparkles className="h-3 w-3" /> Fixed-price catalogue
-          </Badge>
-          <h2 className="mt-4 font-display text-[32px] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink-950 sm:text-[44px]">
-            One price. No “extra lagega”.
-          </h2>
-          <p className="mt-3 text-[14px] leading-relaxed text-ink-600">
-            The visit charge is final and shown upfront. If a spare part is needed, it is added to
-            your bill only after you approve it — never in secret.
-          </p>
-        </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-ink-100 bg-white px-4 py-3 text-[11.5px] text-ink-500">
-          <ShieldCheck className="h-5 w-5 shrink-0 text-brand-600" />
-          <p>
-            <span className="block font-semibold text-ink-900">7-day workmanship warranty</span>
-            on every booking, no extra charge.
-          </p>
-        </div>
+      <div className="animate-fade-up max-w-2xl">
+        <Badge tone="brand">
+          <Sparkles className="h-3 w-3" /> Fixed-price catalogue
+        </Badge>
+        <h2 className="text-ink-950 font-display mt-4 text-[32px] leading-[1.04] font-extrabold tracking-[-0.035em] sm:text-[44px]">
+          One price. No “extra lagega”.
+        </h2>
       </div>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="animate-fade-up mt-8 flex flex-col gap-3 [animation-delay:90ms] sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
           <input
@@ -151,19 +138,19 @@ export function ServiceGrid({
             const popular = service.badge?.toLowerCase().includes("popular");
             return (
               <article
-                key={service.id}
+                key={`${filter}-${service.id}`}
                 className={cn(
-                  "group flex flex-col rounded-3xl border bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lift",
+                  "group card-shine animate-fade-up hover:shadow-lift flex flex-col rounded-3xl border bg-white p-5 transition duration-300 hover:-translate-y-1",
                   popular
-                    ? "border-saffron-300/70 bg-gradient-to-b from-saffron-50/70 to-white ring-1 ring-saffron-400/20"
+                    ? "border-saffron-300/70 from-saffron-50/70 to-white ring-saffron-400/20 bg-gradient-to-b ring-1"
                     : "border-ink-100",
                 )}
-                style={{ animationDelay: `${Math.min(index, 7) * 40}ms` }}
+                style={{ animationDelay: `${Math.min(index, 7) * 45}ms` }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <span
                     className={cn(
-                      "flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ring-1",
+                      "flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ring-1 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110",
                       CATEGORY_META[service.category].tint,
                       CATEGORY_META[service.category].ring,
                     )}
@@ -212,10 +199,10 @@ export function ServiceGrid({
                   <button
                     type="button"
                     onClick={() => beginBooking(service)}
-                    className="inline-flex h-9 items-center gap-1 rounded-full bg-ink-950 px-3.5 text-[12px] font-semibold text-cream-50 transition hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                    className="bg-ink-950 text-cream-50 hover:bg-brand-700 focus-visible:outline-brand-500 inline-flex h-9 items-center gap-1 rounded-full px-3.5 text-[12px] font-semibold transition hover:gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.97]"
                   >
                     Book
-                    <ArrowUpRight className="h-3.5 w-3.5" />
+                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </button>
                 </div>
               </article>
@@ -224,9 +211,8 @@ export function ServiceGrid({
         </div>
       )}
 
-      <p className="mt-6 text-[11.5px] text-ink-400">
-        Prices are per visit and include inspection. Spare parts and additional material are billed
-        separately with your approval. Showing {filtered.length} of {services.length} services.
+      <p className="text-ink-400 mt-6 text-[11.5px]">
+        Showing {filtered.length} of {services.length} services.
       </p>
 
       {active ? (

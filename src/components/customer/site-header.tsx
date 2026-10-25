@@ -6,6 +6,7 @@ import { isDemoMode } from "@/lib/session";
 import { Logo } from "@/components/brand/logo";
 import { AccountMenu } from "@/components/customer/account-menu";
 import { MobileNav } from "@/components/customer/mobile-nav";
+import { PrimaryNav } from "@/components/customer/primary-nav";
 import { buttonClasses } from "@/components/ui/button";
 
 export async function SiteHeader() {
@@ -13,6 +14,7 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
+      <span aria-hidden className="scroll-progress" />
       <div className="bg-ink-950 text-cream-100">
         <div className="container-page flex h-9 items-center justify-between gap-4 text-[11px]">
           <p className="flex items-center gap-2 tracking-wide">
@@ -36,28 +38,15 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      <div className="border-b border-ink-100/80 bg-cream-50/85 backdrop-blur-xl">
-        <div className="container-page flex h-[72px] items-center justify-between gap-5">
-          <Logo />
+      <div className="header-bar border-ink-100/80 bg-cream-50/85 relative border-b backdrop-blur-xl">
+        <div className="container-page flex h-[76px] items-center justify-between gap-5">
+          <Logo className="shrink-0" />
 
-          <nav className="hidden items-center gap-7 text-[13px] font-medium text-ink-600 lg:flex">
-            <Link href="/services" className="transition hover:text-ink-900">
-              Services
-            </Link>
-            <Link href="/how-it-works" className="transition hover:text-ink-900">
-              How it works
-            </Link>
-            <Link href="/why-mistri-now" className="transition hover:text-ink-900">
-              Why Mistri Now
-            </Link>
-            <Link href="/support" className="transition hover:text-ink-900">
-              Support
-            </Link>
-          </nav>
+          <PrimaryNav />
 
-          <div className="flex items-center gap-2">
-            <span className="hidden items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-2 text-[12px] font-semibold text-ink-700 md:flex">
-              <MapPin className="h-3.5 w-3.5 text-brand-600" aria-hidden />
+          <div className="flex items-center gap-2.5">
+            <span className="border-ink-200 text-ink-700 hidden items-center gap-1.5 rounded-full border bg-white px-3.5 py-2.5 text-[13px] font-semibold whitespace-nowrap xl:flex">
+              <MapPin className="text-brand-600 h-3.5 w-3.5" aria-hidden />
               Rewari, HR
             </span>
 
@@ -66,21 +55,21 @@ export async function SiteHeader() {
                 {profile.role === "customer" ? (
                   <Link
                     href="/account"
-                    className={buttonClasses("ghost", "sm", "hidden sm:inline-flex")}
+                    className={buttonClasses("ghost", "md", "hidden whitespace-nowrap sm:inline-flex")}
                   >
                     My bookings
                   </Link>
                 ) : profile.role === "worker" ? (
                   <Link
                     href="/worker/dashboard"
-                    className={buttonClasses("secondary", "sm", "hidden sm:inline-flex")}
+                    className={buttonClasses("secondary", "md", "hidden whitespace-nowrap sm:inline-flex")}
                   >
                     Worker portal
                   </Link>
                 ) : (
                   <Link
                     href="/admin/dashboard"
-                    className={buttonClasses("secondary", "sm", "hidden sm:inline-flex")}
+                    className={buttonClasses("secondary", "md", "hidden whitespace-nowrap sm:inline-flex")}
                   >
                     Admin
                   </Link>
@@ -89,12 +78,12 @@ export async function SiteHeader() {
               </>
             ) : (
               <>
-                <Link href="/auth" className={buttonClasses("ghost", "sm", "hidden sm:inline-flex")}>
+                <Link href="/auth" className={buttonClasses("ghost", "md", "hidden whitespace-nowrap sm:inline-flex")}>
                   Sign in
                 </Link>
                 <Link
                   href="/services"
-                  className={buttonClasses("brand", "sm", "whitespace-nowrap px-3 sm:px-4")}
+                  className={buttonClasses("brand", "md", "whitespace-nowrap px-5")}
                 >
                   Book<span className="hidden sm:inline"> a mistri</span>
                 </Link>

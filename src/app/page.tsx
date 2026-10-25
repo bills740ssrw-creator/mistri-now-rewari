@@ -4,7 +4,6 @@ import { getData } from "@/lib/data";
 import { SiteHeader } from "@/components/customer/site-header";
 import { SiteFooter } from "@/components/customer/site-footer";
 import { ServiceGrid } from "@/components/customer/service-grid";
-import { PageLinks } from "@/components/customer/page-links";
 import {
   CoverageCta,
   Hero,
@@ -41,7 +40,6 @@ export default async function HomePage({
           role={profile?.role ?? null}
           presetServiceId={book}
         />
-        <PageLinks />
         <Testimonials />
         <CoverageCta />
       </main>

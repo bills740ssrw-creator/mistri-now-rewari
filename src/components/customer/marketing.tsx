@@ -19,6 +19,7 @@ import { BRAND } from "@/lib/constants";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
+import { Reveal } from "@/components/ui/reveal";
 
 export function Hero({ signedIn }: { signedIn: boolean }) {
   return (
@@ -29,16 +30,16 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-24 top-40 h-72 w-72 rounded-full border border-brand-200/60"
+        className="pointer-events-none absolute -left-24 top-40 h-72 w-72 rounded-full border border-brand-200/60 animate-drift"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute right-[-8%] top-[-10%] h-[420px] w-[420px] rounded-full bg-brand-100/40 blur-3xl"
+        className="pointer-events-none absolute right-[-8%] top-[-10%] h-[420px] w-[420px] rounded-full bg-brand-100/40 blur-3xl animate-float-slow"
       />
 
       <div className="container-page relative grid items-center gap-14 pb-10 pt-12 lg:grid-cols-[1.03fr_0.97fr] lg:pb-16 lg:pt-20">
-        <div className="animate-[fade-up_.7s_cubic-bezier(.16,1,.3,1)]">
-          <span className="inline-flex items-center gap-2 rounded-full border border-ink-200/80 bg-white/80 px-3.5 py-1.5 text-[11.5px] font-semibold text-ink-700 shadow-sm backdrop-blur">
+        <div>
+          <span className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-ink-200/80 bg-white/80 px-3.5 py-1.5 text-[11.5px] font-semibold text-ink-700 shadow-sm backdrop-blur [animation-delay:40ms]">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-500 opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-600" />
@@ -46,7 +47,7 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
             Serving Rewari · 7 AM – 9 PM, all days
           </span>
 
-          <h1 className="mt-5 font-display text-[40px] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-950 sm:text-[56px] lg:text-[64px]">
+          <h1 className="animate-fade-up mt-5 font-display text-[40px] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-950 sm:text-[56px] lg:text-[64px] [animation-delay:110ms]">
             Ghar ki har repair,
             <br />
             ab{" "}
@@ -59,6 +60,7 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
                 fill="none"
               >
                 <path
+                  className="hero-squiggle"
                   d="M3 10.5C52 8 124 4 236 6.5"
                   stroke="currentColor"
                   strokeWidth="5"
@@ -69,12 +71,12 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
             .
           </h1>
 
-          <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-ink-600 sm:text-base">
+          <p className="animate-fade-up mt-6 max-w-xl text-[15px] leading-relaxed text-ink-600 sm:text-base [animation-delay:180ms]">
             Verified plumbers, electricians, RO and AC technicians at your door in about an hour.
             Fixed prices, no surprise bills, and a 7-day service warranty on every job.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="animate-fade-up mt-8 flex flex-wrap items-center gap-3 [animation-delay:250ms]">
             <Link href="/services" className={buttonClasses("brand", "lg")}>
               Book a service
               <ArrowRight className="h-4 w-4" />
@@ -93,7 +95,7 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
             ) : null}
           </div>
 
-          <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <div className="animate-fade-up mt-9 flex flex-wrap items-center gap-x-6 gap-y-4 [animation-delay:320ms]">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
                 {["Anjali Sharma", "Rohit Verma", "Priya Singh"].map((name) => (
@@ -212,13 +214,17 @@ function LiveJobCard() {
         </div>
       </div>
 
-      <div className="absolute -right-3 -top-4 hidden rotate-3 items-center gap-1.5 rounded-full bg-saffron-400 px-3.5 py-2 text-[11px] font-bold text-ink-950 shadow-lg sm:flex">
-        <BadgeCheck className="h-3.5 w-3.5" />
-        7-day warranty
+      <div className="animate-float absolute -right-3 -top-4 hidden sm:block">
+        <div className="bg-saffron-400 text-ink-950 flex rotate-3 items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-bold shadow-lg">
+          <BadgeCheck className="h-3.5 w-3.5" />
+          7-day warranty
+        </div>
       </div>
-      <div className="absolute -bottom-4 -left-3 hidden -rotate-2 items-center gap-1.5 rounded-full border border-brand-200 bg-white px-3.5 py-2 text-[11px] font-semibold text-brand-700 shadow-lg sm:flex">
-        <ShieldCheck className="h-3.5 w-3.5" />
-        Aadhaar verified pro
+      <div className="animate-float-slow absolute -bottom-4 -left-3 hidden [animation-delay:1.4s] sm:block">
+        <div className="border-brand-200 text-brand-700 flex -rotate-2 items-center gap-1.5 rounded-full border bg-white px-3.5 py-2 text-[11px] font-semibold shadow-lg">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Aadhaar verified pro
+        </div>
       </div>
     </div>
   );
@@ -295,23 +301,22 @@ export function TrustStrip() {
   return (
     <section className="container-page py-12 lg:py-16">
       <div className="grid gap-4 md:grid-cols-3">
-        {items.map((item) => (
-          <div
-            key={item.title}
-            className="group relative overflow-hidden rounded-3xl border border-ink-100 bg-white p-6 transition duration-300 hover:-translate-y-0.5 hover:shadow-soft"
-          >
-            <span
-              aria-hidden
-              className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-brand-50 transition-transform duration-300 group-hover:scale-125"
-            />
-            <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-600/10">
-              <item.icon className="h-5 w-5" strokeWidth={1.9} />
-            </span>
-            <h3 className="relative mt-4 font-display text-[17px] font-bold text-ink-900">
-              {item.title}
-            </h3>
-            <p className="relative mt-1.5 text-[13px] leading-relaxed text-ink-500">{item.copy}</p>
-          </div>
+        {items.map((item, index) => (
+          <Reveal key={item.title} delay={index * 90} className="h-full">
+            <div className="group card-shine hover:shadow-soft relative h-full overflow-hidden rounded-3xl border border-ink-100 bg-white p-6 transition duration-300 hover:-translate-y-1">
+              <span
+                aria-hidden
+                className="bg-brand-50 absolute -right-6 -top-6 h-20 w-20 rounded-full transition-transform duration-500 group-hover:scale-150"
+              />
+              <span className="bg-brand-50 text-brand-700 ring-brand-600/10 relative flex h-11 w-11 items-center justify-center rounded-2xl ring-1 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                <item.icon className="h-5 w-5" strokeWidth={1.9} />
+              </span>
+              <h3 className="font-display text-ink-900 relative mt-4 text-[17px] font-bold">
+                {item.title}
+              </h3>
+              <p className="text-ink-500 relative mt-1.5 text-[13px] leading-relaxed">{item.copy}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -573,25 +578,24 @@ export function Testimonials() {
         </div>
 
         <div className="mt-9 grid gap-4 md:grid-cols-3">
-          {reviews.map((review) => (
-            <figure
-              key={review.name}
-              className="flex flex-col rounded-3xl border border-ink-100 bg-white p-6 shadow-[0_1px_2px_rgba(10,22,17,0.03)]"
-            >
-              <Quote className="h-5 w-5 text-brand-300" />
-              <blockquote className="mt-3 flex-1 text-[13.5px] leading-relaxed text-ink-700">
-                “{review.quote}”
-              </blockquote>
-              <figcaption className="mt-5 flex items-center gap-3 border-t border-ink-100 pt-4">
-                <Avatar name={review.name} size="sm" />
-                <div className="min-w-0">
-                  <p className="truncate text-[13px] font-semibold text-ink-900">{review.name}</p>
-                  <p className="truncate text-[11px] text-ink-500">
-                    {review.area} · {review.service}
-                  </p>
-                </div>
-              </figcaption>
-            </figure>
+          {reviews.map((review, index) => (
+            <Reveal key={review.name} delay={index * 110} className="h-full">
+              <figure className="hover:shadow-soft flex h-full flex-col rounded-3xl border border-ink-100 bg-white p-6 shadow-[0_1px_2px_rgba(10,22,17,0.03)] transition duration-300 hover:-translate-y-1">
+                <Quote className="text-brand-300 h-5 w-5" />
+                <blockquote className="text-ink-700 mt-3 flex-1 text-[13.5px] leading-relaxed">
+                  “{review.quote}”
+                </blockquote>
+                <figcaption className="border-ink-100 mt-5 flex items-center gap-3 border-t pt-4">
+                  <Avatar name={review.name} size="sm" />
+                  <div className="min-w-0">
+                    <p className="text-ink-900 truncate text-[13px] font-semibold">{review.name}</p>
+                    <p className="text-ink-500 truncate text-[11px]">
+                      {review.area} · {review.service}
+                    </p>
+                  </div>
+                </figcaption>
+              </figure>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -614,19 +618,19 @@ export function CoverageCta() {
         />
         <div
           aria-hidden
-          className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-500/20 blur-3xl"
+          className="animate-drift absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-500/20 blur-3xl"
         />
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]">
-          <div>
-            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-300">
+          <Reveal>
+            <p className="text-brand-300 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em]">
               <MapPin className="h-3.5 w-3.5" /> Rewari, Haryana
             </p>
-            <h2 className="mt-4 max-w-2xl font-display text-[32px] font-extrabold leading-[1.03] tracking-[-0.035em] sm:text-[46px]">
+            <h2 className="font-display mt-4 max-w-2xl text-[32px] leading-[1.03] font-extrabold tracking-[-0.035em] sm:text-[46px]">
               Something broken?
               <br />
               Let&apos;s get a mistri to your door.
             </h2>
-            <p className="mt-4 max-w-lg text-[14px] leading-relaxed text-cream-200/65">
+            <p className="text-cream-200/65 mt-4 max-w-lg text-[14px] leading-relaxed">
               Book online in two minutes or call us directly. Slots run from 7 AM to 9 PM, every
               day of the week.
             </p>
@@ -640,8 +644,8 @@ export function CoverageCta() {
                 {BRAND.phoneDisplay}
               </a>
             </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          </Reveal>
+          <Reveal delay={140} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             {[
               { icon: Clock3, label: "Open all 7 days", value: "7 AM – 9 PM" },
               { icon: Wallet, label: "Pay after service", value: "UPI or cash" },
@@ -649,18 +653,18 @@ export function CoverageCta() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="flex items-center gap-3 rounded-2xl border border-cream-100/10 bg-white/[0.04] px-4 py-3.5 backdrop-blur"
+                className="group flex items-center gap-3 rounded-2xl border border-cream-100/10 bg-white/[0.04] px-4 py-3.5 backdrop-blur transition duration-300 hover:border-brand-300/30 hover:bg-white/[0.08]"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500/15 text-brand-300">
+                <span className="bg-brand-500/15 text-brand-300 flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
                   <item.icon className="h-4 w-4" />
                 </span>
                 <div>
-                  <p className="text-[12px] text-cream-200/55">{item.label}</p>
-                  <p className="text-[13.5px] font-semibold text-cream-50">{item.value}</p>
+                  <p className="text-cream-200/55 text-[12px]">{item.label}</p>
+                  <p className="text-cream-50 text-[13.5px] font-semibold">{item.value}</p>
                 </div>
               </div>
             ))}
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>
